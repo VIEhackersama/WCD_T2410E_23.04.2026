@@ -21,21 +21,6 @@ const TrashIcon = () => (
 )
 
 /* ── Helpers ── */
-function generateValueOptions(valueMin, valueMax) {
-  const range = valueMax - valueMin
-  let step
-  if (range <= 1) step = 0.1
-  else if (range <= 20) step = 1
-  else step = 10
-
-  const opts = []
-  let v = valueMin
-  while (v <= valueMax + 0.0001) {
-    opts.push(Math.round(v * 100) / 100)
-    v += step
-  }
-  return opts
-}
 
 function buildPayload(form) {
   return {
@@ -58,7 +43,6 @@ export default function App() {
   const [players, setPlayers]       = useState([])
   const [indexers, setIndexers]     = useState([])
   const [form, setForm]             = useState(initForm)
-  const [valueOpts, setValueOpts]   = useState([])
   const [editState, setEditState]   = useState(null) // { playerId, indexId }
   const [loading, setLoading]       = useState(false)
   const [submitting, setSubmitting] = useState(false)
@@ -90,18 +74,6 @@ export default function App() {
     fetchPlayers()
     fetchIndexers()
   }, [fetchPlayers, fetchIndexers])
-
-  /* ── When indexId changes → recalculate value dropdown ── */
-  useEffect(() => {
-    if (!form.indexId || indexers.length === 0) {
-      setValueOpts([])
-      return
-    }
-    const idx = indexers.find(i => i.indexId === parseInt(form.indexId))
-    if (idx) {
-      setValueOpts(generateValueOptions(idx.valueMin, idx.valueMax))
-    }
-  }, [form.indexId, indexers])
 
   /* ── Flatten players → table rows ── */
   const flatRows = players
@@ -138,7 +110,6 @@ export default function App() {
   function resetForm() {
     setForm(initForm)
     setEditState(null)
-    setValueOpts([])
   }
 
   /* ── Validation ── */
@@ -148,7 +119,16 @@ export default function App() {
     const age = parseInt(form.age)
     if (isNaN(age) || age <= 0 || age > 100) return 'Tuổi phải là số nguyên từ 1 đến 100.'
     if (!form.indexId)           return 'Vui lòng chọn Index name.'
-    if (form.value === '')       return 'Vui lòng chọn Value.'
+    if (form.value === '')       return 'Vui lòng nhập Value.'
+
+    const valueNum = Number(form.value)
+    if (Number.isNaN(valueNum)) return 'Value phải là số hợp lệ.'
+
+    const selectedIndexer = indexers.find(i => i.indexId === parseInt(form.indexId, 10))
+    if (selectedIndexer && (valueNum < selectedIndexer.valueMin || valueNum > selectedIndexer.valueMax)) {
+      return `Value phải nằm trong khoảng [${selectedIndexer.valueMin}, ${selectedIndexer.valueMax}].`
+    }
+
     return null
   }
 
@@ -237,6 +217,10 @@ export default function App() {
   }
 
   /* ════════ Render ════════ */
+  const selectedIndexer = form.indexId
+    ? indexers.find(i => i.indexId === parseInt(form.indexId, 10))
+    : null
+
   return (
     <div className="page-wrapper">
       <div className="card">
@@ -299,18 +283,25 @@ export default function App() {
 
           <div className="form-group">
             <label htmlFor="value">Value</label>
-            <select
+            <input
               id="value"
               name="value"
+              type="number"
+              step="any"
+              min={selectedIndexer?.valueMin}
+              max={selectedIndexer?.valueMax}
               value={form.value}
               onChange={handleFieldChange}
               disabled={!form.indexId}
-            >
-              <option value="">value</option>
-              {valueOpts.map(v => (
-                <option key={v} value={v}>{v}</option>
-              ))}
-            </select>
+              placeholder={selectedIndexer
+                ? `Range: ${selectedIndexer.valueMin} - ${selectedIndexer.valueMax}`
+                : 'Chọn index name trước'}
+            />
+            {selectedIndexer && (
+              <small className="field-hint">
+                Khoang hop le: {selectedIndexer.valueMin} - {selectedIndexer.valueMax}
+              </small>
+            )}
           </div>
         </div>
 

@@ -27,7 +27,7 @@ public class PlayerController {
     public ResponseEntity<ApiResponseDTO<List<PlayerResponseDTO>>> getAllPlayers() {
         List<PlayerResponseDTO> players = playerService.getAllPlayers();
         return ResponseEntity.ok(
-                ApiResponseDTO.success("Lấy danh sách người chơi thành công", players)
+                ApiResponseDTO.success("Get list of players successfully", players)
         );
     }
 
@@ -39,7 +39,7 @@ public class PlayerController {
     public ResponseEntity<ApiResponseDTO<PlayerResponseDTO>> getPlayerById(@PathVariable Integer id) {
         PlayerResponseDTO player = playerService.getPlayerById(id);
         return ResponseEntity.ok(
-                ApiResponseDTO.success("Lấy thông tin người chơi thành công", player)
+                ApiResponseDTO.success("Get player information successfully", player)
         );
     }
 
@@ -52,7 +52,7 @@ public class PlayerController {
             @Valid @RequestBody PlayerRequestDTO dto) {
         PlayerResponseDTO created = playerService.createPlayer(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(
-                ApiResponseDTO.success("Thêm người chơi mới thành công", created)
+                ApiResponseDTO.success("Add player successfully", created)
         );
     }
 
@@ -66,7 +66,7 @@ public class PlayerController {
             @Valid @RequestBody PlayerRequestDTO dto) {
         PlayerResponseDTO updated = playerService.updatePlayer(id, dto);
         return ResponseEntity.ok(
-                ApiResponseDTO.success("Cập nhật thông tin người chơi thành công", updated)
+                ApiResponseDTO.success("Updated player", updated)
         );
     }
 
@@ -78,7 +78,7 @@ public class PlayerController {
     public ResponseEntity<ApiResponseDTO<Void>> deletePlayer(@PathVariable Integer id) {
         playerService.deletePlayer(id);
         return ResponseEntity.ok(
-                ApiResponseDTO.success("Xóa người chơi thành công", null)
+                ApiResponseDTO.success("Successfully deleted", null)
         );
     }
 }

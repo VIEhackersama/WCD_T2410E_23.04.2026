@@ -116,15 +116,17 @@ public class PlayerServiceImpl implements PlayerService {
         player.setAge(dto.getAge());
         player.setIndexer(indexer);
 
-        // Cập nhật player_indexes: xóa cũ, thêm mới
-        playerIndexRepository.deleteByPlayer_PlayerId(playerId);
+        // Cập nhật collection hiện hữu để orphanRemoval xử lý đúng vòng đời entity
+        List<PlayerIndex> managedIndexes = player.getPlayerIndexes();
+        if (managedIndexes == null) {
+            managedIndexes = new ArrayList<>();
+            player.setPlayerIndexes(managedIndexes);
+        } else {
+            managedIndexes.clear();
+        }
 
         if (dto.getPlayerIndexes() != null && !dto.getPlayerIndexes().isEmpty()) {
-            List<PlayerIndex> newIndexes = buildPlayerIndexes(dto.getPlayerIndexes(), player);
-            playerIndexRepository.saveAll(newIndexes);
-            player.setPlayerIndexes(newIndexes);
-        } else {
-            player.setPlayerIndexes(new ArrayList<>());
+            managedIndexes.addAll(buildPlayerIndexes(dto.getPlayerIndexes(), player));
         }
 
         Player updatedPlayer = playerRepository.save(player);
@@ -138,8 +140,7 @@ public class PlayerServiceImpl implements PlayerService {
     @Transactional
     public void deletePlayer(Integer playerId) {
         Player player = findPlayerOrThrow(playerId);
-        // Xóa player_indexes liên quan trước
-        playerIndexRepository.deleteByPlayer_PlayerId(playerId);
+        // Cascade + orphanRemoval sẽ tự xóa các player_index liên quan
         playerRepository.delete(player);
     }
 

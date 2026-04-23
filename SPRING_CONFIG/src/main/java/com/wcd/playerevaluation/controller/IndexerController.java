@@ -24,7 +24,7 @@ public class IndexerController {
         // Bỏ circular reference trước khi trả về
         indexers.forEach(i -> { i.setPlayers(null); i.setPlayerIndexes(null); });
         return ResponseEntity.ok(
-                ApiResponseDTO.success("Lấy danh sách indexer thành công", indexers)
+                ApiResponseDTO.success("Get list successfully", indexers)
         );
     }
 
@@ -36,7 +36,7 @@ public class IndexerController {
         indexer.setPlayers(null);
         indexer.setPlayerIndexes(null);
         return ResponseEntity.ok(
-                ApiResponseDTO.success("Lấy thông tin indexer thành công", indexer)
+                ApiResponseDTO.success("Get indexes successfully", indexer)
         );
     }
 }
