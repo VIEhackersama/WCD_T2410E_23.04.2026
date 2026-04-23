@@ -22,10 +22,10 @@ public class Indexer {
     @Column(name = "name", nullable = false, length = 64)
     private String name;
 
-    @Column(name = "valueMin", nullable = false)
+    @Column(name = "`valueMin`", nullable = false)
     private Float valueMin;
 
-    @Column(name = "valueMax", nullable = false)
+    @Column(name = "`valueMax`", nullable = false)
     private Float valueMax;
 
     @OneToMany(mappedBy = "indexer", cascade = CascadeType.ALL)
